@@ -1,0 +1,149 @@
+"Phrases"
+{
+
+	"Steam ID Regex Mismatch"
+	{
+		
+		"en" "Wrong Steam ID!"
+		"es" "¡Steam ID incorrecto!"
+		"pt" "Steam ID errado!"
+		
+	}
+	
+	"Steam ID Added"
+	{
+		
+		"en" "Steam ID added to the block list."
+		"es" "Steam ID agregado a la block list."
+		"pt" "Steam ID adicionado à block list."
+		
+	}
+	
+	"Steam ID Added Target"
+	{
+		
+		"#format" "{1:s}"
+		
+		"en" "{1} added to the block list."
+		"es" "{1} agregado a la block list."
+		"pt" "{1} adicionado à block list."
+		
+	}
+	
+	"Steam ID Already Blocked"
+	{
+		
+		"en" "This Steam ID was already blocked."
+		"es" "Este Steam ID ya estaba bloqueado."
+		"pt" "Este Steam ID já foi bloqueado."
+		
+	}
+	
+	"Steam ID Already Blocked Target"
+	{
+		
+		"#format" "{1:s}"
+		
+		"en" "{1} was already blocked."
+		"es" "{1} ya estaba bloqueado."
+		"pt" "{1} já foi bloqueado."
+		
+	}
+	
+	"Steam ID Removed"
+	{
+		
+		"en" "Steam ID removed from the block list."
+		"es" "Steam ID borrado de la block list."
+		"pt" "Steam ID eliminado da block list."
+		
+	}
+	
+	"Steam ID Removed Target"
+	{
+		
+		"#format" "{1:s}"
+		
+		"en" "{1} removed from the block list."
+		"es" "{1} borrado de la block list."
+		"pt" "{1} eliminado da block list."
+		
+	}
+	
+	"Steam ID Not In Blocklist"
+	{
+		
+		"en" "This Steam ID was not in the block list."
+		"es" "Este Steam ID no estaba en la block list."
+		"pt" "Este Steam ID não estava na block list."
+		
+	}
+	
+	"Steam ID Not In Blocklist Target"
+	{
+		
+		"#format" "{1:s}"
+		
+		"en" "{1} was not in the block list."
+		"es" "{1} no estaba en la block list."
+		"pt" "{1} não estava na block list."
+		
+	}
+	
+	"List of Steam IDs"
+	{
+		
+		"en" "List of Steam IDs"
+		"es" "Lista de Steam IDs"
+		"pt" "Lista de Steam IDs"
+		
+	}
+	
+	"Not Allowed"
+	{
+		
+		"en" "You have been banned from using CallAdmin."
+		"es" "Se te ha prohibido el uso de CallAdmin."
+		"pt" "Você foi banido de usar CallAdmin."
+		
+	}
+	
+	"Invalid Target"
+	{
+		
+		"en" "Invalid target or Steam ID."
+		"es" "Jugador o Steam ID inválido."
+		"pt" "Jogador ou Steam ID errado."
+		
+	}
+	
+	"No Information"
+	{
+		
+		"en" "The block list is empty!"
+		"es" "La block list está vacía."
+		"pt" "A block list está vazia!"
+		
+	}
+	
+	"Error Get Auth ID"
+	{
+		
+		"en" "Error while fetching user's Auth ID."
+		"es" "Error al intentar obtener el Auth ID del usuario."
+		"pt" "Erro ao obter o Auth ID do usuário."
+		
+	}
+	
+	"Error Opening File"
+	{
+		
+		"en" "Error while trying to open the block list file."
+		"es" "Error al intentar abrir el archivo de la block list."
+		"pt" "Erro ao tentar abrir o arquivo da block list."
+		
+	}
+	
+	
+
+}
