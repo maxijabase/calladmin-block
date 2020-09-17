@@ -75,15 +75,11 @@ void ParseBlocklist() {
 	
 	while (!file.EndOfFile() && file.ReadLine(readBuffer, sizeof(readBuffer))) {
 		
-		// Ignore commented lines and lines that begin with space 
-		
 		if (readBuffer[0] == '/' || IsCharSpace(readBuffer[0])) {
 			
 			continue;
 			
 		}
-		
-		// Support for comments on end of line
 		
 		len = strlen(readBuffer);
 		
@@ -102,7 +98,7 @@ void ParseBlocklist() {
 		
 		if (!MatchRegex(g_rSteamIdRegex, readBuffer)) {
 			
-			SetFailState("%s Make sure file contains valid SteamIDs!", PREFIX, g_cConfigFile);
+			SetFailState("%s Error while parsing the file, make sure it contains valid SteamIDs!", PREFIX, g_cConfigFile);
 			
 		}
 		
@@ -137,15 +133,11 @@ public void OnClientPostAdminCheck(int client) {
 	
 	while (!file.EndOfFile() && file.ReadLine(readBuffer, sizeof(readBuffer))) {
 		
-		// Ignore commented lines and lines that begin with space 
-		
 		if (readBuffer[0] == '/' || IsCharSpace(readBuffer[0])) {
 			
 			continue;
 			
 		}
-		
-		// Support for comments on end of line
 		
 		len = strlen(readBuffer);
 		
@@ -191,8 +183,6 @@ public Action CMD_Add(int client, int args) {
 	bool isTarget;
 	int target;
 	
-	// If the argument is a Steam ID, format fileChar as it
-	
 	if (MatchRegex(g_rSteamIdRegex, arg1)) {
 		
 		strcopy(fileChar, sizeof(fileChar), arg1);
@@ -200,21 +190,15 @@ public Action CMD_Add(int client, int args) {
 		
 	}
 	
-	// If it wasn't, it must have been a server client, right? Let's fetch his ID
-	
 	else {
 		
 		target = FindTarget(client, arg1, true, false);
-		
-		// If it wasn't either, fail.
 		
 		if (target == -1) {
 			
 			return Plugin_Handled;
 			
 		}
-		
-		// But if it was, get his ID and put it in fileChar
 		
 		else {
 			
@@ -231,8 +215,6 @@ public Action CMD_Add(int client, int args) {
 		
 	}
 	
-	// Let's open the file and perform the readings and writings
-	
 	File file = OpenFile(g_cConfigFile, "r+");
 	
 	if (!file) {
@@ -248,15 +230,11 @@ public Action CMD_Add(int client, int args) {
 	
 	while (!file.EndOfFile() && file.ReadLine(readBuffer, sizeof(readBuffer))) {
 		
-		// Ignore commented lines and lines that begin with space 
-		
 		if (readBuffer[0] == '/' || IsCharSpace(readBuffer[0])) {
 			
 			continue;
 			
 		}
-		
-		// Support for comments on end of line
 		
 		len = strlen(readBuffer);
 		
@@ -391,15 +369,11 @@ public Action CMD_Remove(int client, int args) {
 	
 	while (!file1.EndOfFile() && file1.ReadLine(readBuffer, sizeof(readBuffer))) {
 		
-		// Ignore commented lines and lines that begin with space 
-		
 		if (readBuffer[0] == '/' || IsCharSpace(readBuffer[0])) {
 			
 			continue;
 			
 		}
-		
-		// Support for comments on end of line
 		
 		len = strlen(readBuffer);
 		
@@ -520,15 +494,11 @@ public Action CMD_List(int client, int args) {
 	
 	while (!file.EndOfFile() && file.ReadLine(readBuffer, sizeof(readBuffer))) {
 		
-		// Ignore commented lines and lines that begin with space 
-		
 		if (readBuffer[0] == '/' || IsCharSpace(readBuffer[0])) {
 			
 			continue;
 			
 		}
-		
-		// Support for comments on end of line
 		
 		len = strlen(readBuffer);
 		
