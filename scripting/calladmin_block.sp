@@ -551,6 +551,8 @@ public Action CMD_List(int client, int args) {
 	delete panel;
 	delete file;
 	
+	return Plugin_Handled;
+	
 }
 
 public int panelHandler(Menu menu, MenuAction action, int param1, int param2) {
