@@ -115,6 +115,7 @@ public void OnClientPostAdminCheck(int client) {
 	if (!file) {
 		
 		LogError("Error while trying to open the config file.");
+		delete file;
 		return;
 		
 	}
@@ -124,6 +125,7 @@ public void OnClientPostAdminCheck(int client) {
 	if (!GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid))) {
 		
 		LogError("Error while attempting to fetch client's Auth ID");
+		delete file;
 		return;
 		
 	}
@@ -157,6 +159,7 @@ public void OnClientPostAdminCheck(int client) {
 		if (StrContains(readBuffer, steamid) != -1) {
 			
 			g_bIsClientBlocked[client] = true;
+			delete file;
 			return;
 			
 		}
@@ -220,6 +223,7 @@ public Action CMD_Add(int client, int args) {
 	if (!file) {
 		
 		CReplyToCommand(client, "%s %t", PREFIX, "Error Opening File");
+		delete file;
 		return Plugin_Handled;
 		
 	}
@@ -358,6 +362,7 @@ public Action CMD_Remove(int client, int args) {
 	if (!file1) {
 		
 		CReplyToCommand(client, "%s %t", PREFIX, "Error Opening File");
+		delete file1;
 		return Plugin_Handled;
 		
 	}
@@ -438,13 +443,13 @@ public Action CMD_Remove(int client, int args) {
 	if (!file2) {
 		
 		CReplyToCommand(client, "%s %t", PREFIX, "Error Opening File");
+		delete file2;
 		return Plugin_Handled;
 		
 	}
 	
 	file2.WriteLine("// CallAdmin Blocklist - List of Steam IDs blocked from reporting.\n");
 	file2.WriteLine("");
-	
 	
 	for (int i = 0; i < al.Length; i++) {
 		
@@ -487,6 +492,14 @@ public Action CMD_List(int client, int args) {
 	panel.DrawText(" ");
 	
 	File file = OpenFile(g_cConfigFile, "r");
+	
+	if (!file) {
+		
+		CReplyToCommand(client, "%s %t", PREFIX, "Error Opening File");
+		delete file;
+		return Plugin_Handled;
+		
+	}
 	
 	char readBuffer[128];
 	int len;
@@ -536,6 +549,7 @@ public Action CMD_List(int client, int args) {
 	panel.Send(client, panelHandler, 20);
 	
 	delete panel;
+	delete file;
 	
 }
 
