@@ -114,7 +114,7 @@ public void OnClientPostAdminCheck(int client) {
 	
 	if (!file) {
 		
-		LogError("Error while trying to open the config file.");
+		LogError("%s Error while trying to open the config file.", PREFIX);
 		delete file;
 		return;
 		
@@ -124,7 +124,7 @@ public void OnClientPostAdminCheck(int client) {
 	
 	if (!GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid))) {
 		
-		LogError("Error while attempting to fetch client's Auth ID");
+		LogError("%s Error while attempting to fetch client's Auth ID", PREFIX);
 		delete file;
 		return;
 		
@@ -448,7 +448,7 @@ public Action CMD_Remove(int client, int args) {
 		
 	}
 	
-	file2.WriteLine("// CallAdmin Blocklist - List of Steam IDs blocked from reporting.\n");
+	file2.WriteLine("// CallAdmin Blocklist - List of Steam IDs blocked from reporting.");
 	file2.WriteLine("");
 	
 	for (int i = 0; i < al.Length; i++) {
@@ -575,7 +575,7 @@ public Action CallAdmin_OnDrawMenu(int client) {
 	
 	if (!GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid))) {
 		
-		LogError("Error while attempting to fetch client's Auth ID");
+		LogError("%s Error while attempting to fetch client's Auth ID", PREFIX);
 		return Plugin_Handled;
 		
 	}
