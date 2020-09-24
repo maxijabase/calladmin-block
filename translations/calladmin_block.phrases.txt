@@ -22,7 +22,7 @@
 	"Steam ID Added Target"
 	{
 		
-		"#format" "{1:s}"
+		"#format" "{1:N}"
 		
 		"en" "{1} added to the block list."
 		"es" "{1} agregado a la block list."
@@ -42,7 +42,7 @@
 	"Steam ID Already Blocked Target"
 	{
 		
-		"#format" "{1:s}"
+		"#format" "{1:N}"
 		
 		"en" "{1} was already blocked."
 		"es" "{1} ya estaba bloqueado."
@@ -62,7 +62,7 @@
 	"Steam ID Removed Target"
 	{
 		
-		"#format" "{1:s}"
+		"#format" "{1:N}"
 		
 		"en" "{1} removed from the block list."
 		"es" "{1} borrado de la block list."
@@ -82,7 +82,7 @@
 	"Steam ID Not In Blocklist Target"
 	{
 		
-		"#format" "{1:s}"
+		"#format" "{1:N}"
 		
 		"en" "{1} was not in the block list."
 		"es" "{1} no estaba en la block list."

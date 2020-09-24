@@ -19,7 +19,6 @@ public Plugin myinfo =  {
 	
 }
 
-char g_cConfigFile[PLATFORM_MAX_PATH];
 Regex g_rSteamIdRegex;
 bool g_bIsClientBlocked[MAXPLAYERS + 1];
 
