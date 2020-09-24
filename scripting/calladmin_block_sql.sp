@@ -48,6 +48,8 @@ public void OnPluginStart() {
 	
 	Database.Connect(SQL_ConnectCallback, "calladmin_block");
 	
+	AddCommandListener(OnCallAdminExecuted, "sm_calladmin");
+	
 }
 
 public void SQL_ConnectCallback(Database db, const char[] error, any data) {
@@ -444,7 +446,7 @@ public void SQL_ListCallback(Database db, DBResultSet results, const char[] erro
 	}
 	
 	int steamidCol, aliasCol, count;
-	char steamid[32], alias[64];
+	char steamid[32], alias[64], panelLine[128];
 	
 	results.FieldNameToNum("steam_id", steamidCol);
 	results.FieldNameToNum("alias", aliasCol);
@@ -460,8 +462,6 @@ public void SQL_ListCallback(Database db, DBResultSet results, const char[] erro
 		count++;
 		results.FetchString(steamidCol, steamid, sizeof(steamid));
 		results.FetchString(aliasCol, alias, sizeof(alias));
-		
-		char panelLine[128];
 		
 		if (alias[0]) {
 			
@@ -479,10 +479,10 @@ public void SQL_ListCallback(Database db, DBResultSet results, const char[] erro
 		
 	} while (results.FetchRow());
 	
-	panel.DrawText("");
+	panel.DrawText(" ");
 	panel.CurrentKey = 10;
 	panel.DrawItem("Exit");
-	panel.Send(client, panelHandler, MENU_TIME_FOREVER);
+	panel.Send(client, panelHandler, 20);
 	
 	delete panel;
 	
@@ -504,23 +504,7 @@ public int panelHandler(Menu menu, MenuAction action, int param1, int param2) {
 
 public Action CallAdmin_OnDrawMenu(int client) {
 	
-	char steamid[32];
 	
-	if (!GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid))) {
-		
-		LogError("%s Error while attempting to fetch client's Auth ID", PREFIX);
-		return Plugin_Handled;
-		
-	}
-	
-	if (g_bIsClientBlocked[client]) {
-		
-		CReplyToCommand(client, "%s %t", PREFIX, "Not Allowed");
-		return Plugin_Handled;
-		
-	}
-	
-	return Plugin_Continue;
 	
 }
 
