@@ -8,7 +8,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "2.0"
+#define PLUGIN_VERSION "2.1"
 
 #define PREFIX "{green}[CallAdmin Block]{default}"
 #define PREFIXN "[CallAdmin Block]"
@@ -111,12 +111,15 @@ public void SQL_TablesCallback(Database db, DBResultSet results, const char[] er
 public void OnClientPostAdminCheck(int client) {
 	
 	char steamID[32];
-	GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID));
 	
-	char query[512];
-	Format(query, sizeof(query), "SELECT time_end FROM calladmin_block WHERE steam_id = '%s'", steamID);
-	
-	g_Database.Query(SQL_OnClientConnectedCacheCallback, query, GetClientUserId(client));
+	if (GetClientAuthId(client, AuthId_Steam2, steamID, sizeof(steamID))) {
+		
+		char query[512];
+		Format(query, sizeof(query), "SELECT time_end FROM calladmin_block WHERE steam_id = '%s'", steamID);
+		
+		g_Database.Query(SQL_OnClientConnectedCacheCallback, query, GetClientUserId(client));
+		
+	}
 	
 }
 
@@ -136,6 +139,7 @@ public void SQL_OnClientConnectedCacheCallback(Database db, DBResultSet results,
 	if (!results.FetchRow()) {
 		
 		g_iUserUnbanTime[client] = -1;
+		delete results;
 		return;
 		
 	} else {
@@ -153,17 +157,8 @@ public void SQL_OnClientConnectedCacheCallback(Database db, DBResultSet results,
 
 public Action CMD_Add(int client, int args) {
 	
-	if (args < 2) {
-		
-		CReplyToCommand(client, "%s Usage: sm_calladmin_block_add <user | STEAM_0:X:XXXXX> <time> [alias]", PREFIX);
-		return Plugin_Handled;
-		
-	}
-	
 	char arg[128], arg1[64], arg2[64], arg3[64];
 	GetCmdArgString(arg, sizeof(arg));
-	
-	/* <explode> */
 	
 	char buf[3][32];
 	
@@ -173,22 +168,27 @@ public Action CMD_Add(int client, int args) {
 	strcopy(arg2, sizeof(arg1), buf[1]);
 	strcopy(arg3, sizeof(arg1), buf[2]);
 	
-	/* </explode> */
-	
 	char targetSteamID[64];
 	bool isTarget;
 	int target;
 	
-	if (!SimpleRegexMatch(arg2, "^[0-9]*$") || arg2[0] == '\0') {
+	if (args < 2 || arg2[0] == '\0') {
+		
+		CReplyToCommand(client, "%s Usage: sm_calladmin_block_add <user | STEAM_0:X:XXXXX> <time> [alias]", PREFIX);
+		return Plugin_Handled;
+		
+	}
+	
+	if (!SimpleRegexMatch(arg2, "^[0-9]*$")) {
 		
 		CReplyToCommand(client, "%s %t", PREFIX, "Incorrect Time");
 		return Plugin_Handled;
 		
 	}
 	
-	int banTime = StringToInt(arg2);
+	int banTime = ProcessBanTime(StringToInt(arg2));
 	
-	if (ProcessTime(banTime) < 0) {
+	if (banTime < 0) {
 		
 		CReplyToCommand(client, "%s %t", PREFIX, "Time Too Long");
 		return Plugin_Handled;
@@ -241,7 +241,11 @@ public Action CMD_Add(int client, int args) {
 		
 		Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
 			"VALUES ('%s', %d, %d, '%s') "...
-			"ON DUPLICATE KEY UPDATE steam_id = '%s', time_end = %d, alias = '%s';", targetSteamID, GetTime(), (banTime == 0 ? banTime : ProcessTime(banTime)), dbAlias, targetSteamID, ProcessTime(banTime), dbAlias);
+			"ON DUPLICATE KEY UPDATE "...
+			"steam_id = '%s', "...
+			"time_start = %d, "...
+			"time_end = %d, "...
+			"alias = '%s';", targetSteamID, GetTime(), banTime, dbAlias, targetSteamID, GetTime(), banTime, dbAlias);
 		
 	} else {
 		
@@ -250,12 +254,20 @@ public Action CMD_Add(int client, int args) {
 			g_Database.Escape(arg3, dbAlias, sizeof(dbAlias));
 			Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
 				"VALUES ('%s', %d, %d, '%s') "...
-				"ON DUPLICATE KEY UPDATE steam_id = '%s', time_end = %d, alias = '%s';", targetSteamID, GetTime(), (banTime == 0 ? banTime : ProcessTime(banTime)), dbAlias, targetSteamID, ProcessTime(banTime), dbAlias);
+				"ON DUPLICATE KEY UPDATE "...
+				"steam_id = '%s', "...
+				"time_start = %d, "...
+				"time_end = %d, "...
+				"alias = '%s';", targetSteamID, GetTime(), banTime, dbAlias, targetSteamID, GetTime(), banTime, dbAlias);
+			
 		} else {
 			
 			Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end) "...
 				"VALUES ('%s', %d, %d) "...
-				"ON DUPLICATE KEY UPDATE steam_id = '%s', time_end = %d;", targetSteamID, GetTime(), (banTime == 0 ? banTime : ProcessTime(banTime)), targetSteamID, ProcessTime(banTime));
+				"ON DUPLICATE KEY UPDATE "...
+				"steam_id = '%s', "...
+				"time_start = %d, "...
+				"time_end = %d;", targetSteamID, GetTime(), banTime, targetSteamID, GetTime(), banTime);
 			
 		}
 		
@@ -270,7 +282,7 @@ public Action CMD_Add(int client, int args) {
 	
 	g_Database.Query(SQL_AddCallback, query, pack);
 	
-	InGameAdd(target, ProcessTime(banTime), targetSteamID, isTarget);
+	InGameAdd(target, banTime, targetSteamID, isTarget);
 	
 	return Plugin_Handled;
 	
@@ -719,11 +731,7 @@ public void SQL_DeleteMenuEntryCallback(Database db, DBResultSet results, const 
 
 public Action CallAdmin_OnDrawMenu(int client) {
 	
-	if (g_iUserUnbanTime[client] == -1) {
-		
-		return Plugin_Continue;
-		
-	} else if (GetTime() < g_iUserUnbanTime[client] || g_iUserUnbanTime[client] == 0) {
+	if ((GetTime() < g_iUserUnbanTime[client] || g_iUserUnbanTime[client] == 0) && g_iUserUnbanTime[client] != -1) {
 		
 		CPrintToChat(client, "%s %t", PREFIX, "Not Allowed");
 		return Plugin_Handled;
@@ -741,6 +749,7 @@ void InGameAdd(int target, int banEnd, const char[] targetSteamID, bool isTarget
 	if (isTarget) {
 		
 		g_iUserUnbanTime[target] = banEnd;
+		return;
 		
 	} else {
 		
@@ -748,9 +757,7 @@ void InGameAdd(int target, int banEnd, const char[] targetSteamID, bool isTarget
 		
 		for (int i = 1; i <= MaxClients; i++) {
 			
-			if (IsClientInGame(i) && !IsFakeClient(i)) {
-				
-				GetClientAuthId(i, AuthId_Steam2, steamID, sizeof(steamID));
+			if (IsClientInGame(i) && !IsFakeClient(i) && GetClientAuthId(i, AuthId_Steam2, steamID, sizeof(steamID))) {
 				
 				if (StrEqual(targetSteamID, steamID)) {
 					
@@ -767,6 +774,7 @@ void InGameAdd(int target, int banEnd, const char[] targetSteamID, bool isTarget
 	
 }
 
+
 void InGameRemove(int target = 1, const char[] targetSteamID = "", bool isTarget = false) {
 	
 	if (isTarget) {
@@ -780,9 +788,7 @@ void InGameRemove(int target = 1, const char[] targetSteamID = "", bool isTarget
 		
 		for (int i = 1; i <= MaxClients; i++) {
 			
-			if (IsClientInGame(i) && !IsFakeClient(i)) {
-				
-				GetClientAuthId(i, AuthId_Steam2, steamID, sizeof(steamID));
+			if (IsClientInGame(i) && !IsFakeClient(i) && GetClientAuthId(i, AuthId_Steam2, steamID, sizeof(steamID))) {
 				
 				if (StrEqual(targetSteamID, steamID)) {
 					
@@ -799,7 +805,8 @@ void InGameRemove(int target = 1, const char[] targetSteamID = "", bool isTarget
 	
 }
 
-stock int ProcessTime(int time) {
+
+stock int ProcessBanTime(int time) {
 	
 	return time == 0 ? 0 : (GetTime() + (time * 60));
 	
