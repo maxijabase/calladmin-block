@@ -59,7 +59,7 @@ public void SQL_ConnectCallback(Database db, const char[] error, any data) {
 	
 	if (db == null) {
 		
-		ThrowError("%s %s", PREFIXN, error);
+		SetFailState("%s %s", PREFIXN, error);
 		return;
 		
 	}
