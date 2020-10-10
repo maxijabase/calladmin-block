@@ -108,7 +108,7 @@ public void SQL_TablesCallback(Database db, DBResultSet results, const char[] er
 
 /* Cache User Ban Times */
 
-public void OnClientPostAdminCheck(int client) {
+public void OnClientAuthorized(int client) {
 	
 	char steamID[32];
 	
