@@ -39,8 +39,11 @@ public void OnPluginStart() {
 	CreateConVar("sm_calladmin_block_version", PLUGIN_VERSION, "Plugin Version.", FCVAR_DONTRECORD | FCVAR_NOTIFY);
 	
 	RegAdminCmd("sm_calladmin_block_add", CMD_Add, ADMFLAG_GENERIC, "Add people to the block list of CallAdmin.");
+	RegAdminCmd("sm_cb_add", CMD_Add, ADMFLAG_GENERIC, "Add people to the block list of CallAdmin.");
 	RegAdminCmd("sm_calladmin_block_remove", CMD_Remove, ADMFLAG_GENERIC, "Remove people from the block list of CallAdmin.");
+	RegAdminCmd("sm_cb_remove", CMD_Remove, ADMFLAG_GENERIC, "Remove people from the block list of CallAdmin.");
 	RegAdminCmd("sm_calladmin_block_list", CMD_List, ADMFLAG_GENERIC, "List all people in CallAdmin's block list.");
+	RegAdminCmd("sm_cb_list", CMD_List, ADMFLAG_GENERIC, "List all people in CallAdmin's block list.");
 	
 	g_rSteamIdRegex = CompileRegex("^STEAM_[\\d{1}]:[\\d{1}]:[\\d]+$");
 	
