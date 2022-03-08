@@ -1,14 +1,5 @@
 "Phrases"
 {
-
-	"Steam ID Regex Mismatch"
-	{
-		
-		"en" "Wrong Steam ID!"
-		"es" "¡Steam ID incorrecto!"
-		"pt" "Steam ID errado!"
-		
-	}
 	
 	"Steam ID Added"
 	{
@@ -27,26 +18,6 @@
 		"en" "{1} added to the block list."
 		"es" "{1} agregado a la block list."
 		"pt" "{1} adicionado à block list."
-		
-	}
-	
-	"Steam ID Already Blocked"
-	{
-		
-		"en" "This Steam ID was already blocked."
-		"es" "Este Steam ID ya estaba bloqueado."
-		"pt" "Este Steam ID já foi bloqueado."
-		
-	}
-	
-	"Steam ID Already Blocked Target"
-	{
-		
-		"#format" "{1:N}"
-		
-		"en" "{1} was already blocked."
-		"es" "{1} ya estaba bloqueado."
-		"pt" "{1} já foi bloqueado."
 		
 	}
 	
@@ -108,15 +79,6 @@
 		
 	}
 	
-	"Invalid Target"
-	{
-		
-		"en" "Invalid target or Steam ID."
-		"es" "Jugador o Steam ID inválido."
-		"pt" "Jogador ou Steam ID errado."
-		
-	}
-	
 	"No Information"
 	{
 		
@@ -126,24 +88,105 @@
 		
 	}
 	
-	"Error Get Auth ID"
+	"Incorrect Time"
 	{
 		
-		"en" "Error while fetching user's Auth ID."
-		"es" "Error al intentar obtener el Auth ID del usuario."
-		"pt" "Erro ao obter o Auth ID do usuário."
+		"en" "Ban time supplied was incorrect."
+		"es" "El tiempo de ban ingresado es incorrecto."
+		"pt" "O tempo de ban ingresado foi incorreto."
 		
 	}
 	
-	"Error Opening File"
+	"Showing Ban Status"
 	{
 		
-		"en" "Error while trying to open the block list file."
-		"es" "Error al intentar abrir el archivo de la block list."
-		"pt" "Erro ao tentar abrir o arquivo da block list."
+		"#format" "{1:s}"
+		
+		"en" "Showing ban status for {1}"
+		"es" "Mostrando estado de ban para {1}"
+		"pt" "Mostrando estado de ban para {1}"
 		
 	}
 	
+	"Date Of Issue"
+	{
+		
+		"en" "Date of issue"
+		"es" "Fecha de emisión"
+		"pt" "Data de emissão"
+		
+	}
 	
+	"Date Of End"
+	{
+		
+		"en" "Date of end"
+		"es" "Fecha de fin"
+		"pt" "Data de fim"
+		
+	}
+	
+	"Alias"
+	{
+		
+		"en" "Alias"
+		"es" "Alias"
+		"pt" "Álias"
+		
+	}
+	
+	"No Alias"
+	{
+		
+		"en" "No alias"
+		"es" "Sin alias"
+		"pt" "Sem álias"
+		
+	}
+	
+	"Time Too Long"
+	{
+		
+		"en" "Supplied ban time is longer than the system can support."
+		"es" "El tiempo de ban especificado es mayor del que el sistema puede soportar."
+		"pt" "O tempo de banimento fornecido é maior do que o sistema pode suportar."
+		
+	}
+	
+	"Exit"
+	{
+		
+		"en" "Exit"
+		"es" "Salir"
+		"pt" "Sair"
+		
+	}
+	
+	"Back"
+	{
+		
+		"en" "Back"
+		"es" "Atrás"
+		"pt" "Voltar"
+		
+	}
+	
+	"Remove User"
+	{
+		
+		"en" "Remove user"
+		"es" "Remover usuario"
+		"pt" "Remover usuário"
+		
+	}
 
+	"Permaban"
+	
+	{
+		
+		"en" "Permanent ban"
+		"es" "Ban permanente"
+		"pt" "Banimento permanente"
+		
+	}
 }
