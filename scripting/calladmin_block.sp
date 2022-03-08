@@ -2,33 +2,31 @@
 
 #include <sourcemod>
 #include <regex>
-#include "include/multicolors"
 #include "include/calladmin"
 
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "2.1"
+#define PLUGIN_VERSION "2.3"
 
-#define PREFIX "{green}[CallAdmin Block]{default}"
-#define PREFIXN "[CallAdmin Block]"
+#define PREFIX "[SM]"
+#define PREFIXN "[SM]"
 
 /* Plugin Info */
 
-public Plugin myinfo =  {
+public Plugin myinfo = {
 	
 	name = "CallAdmin - Block", 
 	author = "ampere", 
 	description = "CallAdmin module to block people from reporting.", 
 	version = PLUGIN_VERSION, 
-	url = "https://github.com/ratawar"
+	url = "https://github.com/maxijabase/calladmin-block"
 	
 }
 
 /* Globals */
 
 Database g_Database;
-//bool g_bIsLite;
 Regex g_rSteamIdRegex;
 int g_iCurrentUserInPanel;
 int g_iUserUnbanTime[MAXPLAYERS + 1];
@@ -65,16 +63,6 @@ public void SQL_ConnectCallback(Database db, const char[] error, any data) {
 	}
 	
 	g_Database = db;
-	
-	/*
-	
-	char driver[16];
-	db.Driver.GetIdentifier(driver, sizeof(driver));
-	
-	g_bIsLite = !strcmp(driver, "sqlite") ? true : false;
-	
-	*/
-	
 	CreateTables();
 	
 }
@@ -96,10 +84,21 @@ public void SQL_TablesCallback(Database db, DBResultSet results, const char[] er
 	
 	if (db == null || results == null) {
 		
-		ThrowError("%s %s", PREFIXN, error);
+		SetFailState("%s %s", PREFIXN, error);
 		delete results;
 		return;
 		
+	}
+	else {
+		
+		for (int i = 1; i <= MaxClients; i++) {
+			
+			if (IsClientInGame(i) && IsClientAuthorized(i)) {
+				
+				OnClientAuthorized(i);
+				
+			}
+		}
 	}
 	
 	delete results;
@@ -109,6 +108,10 @@ public void SQL_TablesCallback(Database db, DBResultSet results, const char[] er
 /* Cache User Ban Times */
 
 public void OnClientAuthorized(int client) {
+	
+	if (!g_Database) {
+		return;
+	}
 	
 	char steamID[32];
 	
@@ -157,6 +160,11 @@ public void SQL_OnClientConnectedCacheCallback(Database db, DBResultSet results,
 
 public Action CMD_Add(int client, int args) {
 	
+	if (g_Database == null) {
+		ReplyToCommand(client, "%s Database failed to connect! Try reloading plugin.");
+		return Plugin_Handled;
+	}
+	
 	char arg[128], arg1[64], arg2[64], arg3[64];
 	GetCmdArgString(arg, sizeof(arg));
 	
@@ -174,14 +182,14 @@ public Action CMD_Add(int client, int args) {
 	
 	if (args < 2 || arg2[0] == '\0') {
 		
-		CReplyToCommand(client, "%s Usage: sm_calladmin_block_add <user | STEAM_0:X:XXXXX> <time> [alias]", PREFIX);
+		ReplyToCommand(client, "%s Usage: sm_calladmin_block_add <user | STEAM_0:X:XXXXX> <time> [alias]", PREFIX);
 		return Plugin_Handled;
 		
 	}
 	
 	if (!SimpleRegexMatch(arg2, "^[0-9]*$")) {
 		
-		CReplyToCommand(client, "%s %t", PREFIX, "Incorrect Time");
+		ReplyToCommand(client, "%s %t", PREFIX, "Incorrect Time");
 		return Plugin_Handled;
 		
 	}
@@ -190,7 +198,7 @@ public Action CMD_Add(int client, int args) {
 	
 	if (banTime < 0) {
 		
-		CReplyToCommand(client, "%s %t", PREFIX, "Time Too Long");
+		ReplyToCommand(client, "%s %t", PREFIX, "Time Too Long");
 		return Plugin_Handled;
 		
 	}
@@ -212,7 +220,7 @@ public Action CMD_Add(int client, int args) {
 			
 			if (!GetClientAuthId(target, AuthId_Steam2, targetSteamID, sizeof(targetSteamID))) {
 				
-				CReplyToCommand(client, "%s %t", PREFIX, "Error Get Auth ID");
+				ReplyToCommand(client, "%s %t", PREFIX, "Error Get Auth ID");
 				return Plugin_Handled;
 				
 			}
@@ -239,7 +247,7 @@ public Action CMD_Add(int client, int args) {
 			
 		}
 		
-		Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
+		g_Database.Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
 			"VALUES ('%s', %d, %d, '%s') "...
 			"ON DUPLICATE KEY UPDATE "...
 			"steam_id = '%s', "...
@@ -252,7 +260,7 @@ public Action CMD_Add(int client, int args) {
 		if (arg3[0] != '\0') {
 			
 			g_Database.Escape(arg3, dbAlias, sizeof(dbAlias));
-			Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
+			g_Database.Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end, alias) "...
 				"VALUES ('%s', %d, %d, '%s') "...
 				"ON DUPLICATE KEY UPDATE "...
 				"steam_id = '%s', "...
@@ -262,7 +270,7 @@ public Action CMD_Add(int client, int args) {
 			
 		} else {
 			
-			Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end) "...
+			g_Database.Format(query, sizeof(query), "INSERT INTO calladmin_block (steam_id, time_start, time_end) "...
 				"VALUES ('%s', %d, %d) "...
 				"ON DUPLICATE KEY UPDATE "...
 				"steam_id = '%s', "...
@@ -319,11 +327,11 @@ public void SQL_AddCallback(Database db, DBResultSet results, const char[] error
 	
 	if (isTarget) {
 		
-		!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Added Target", target) : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Added Target", target);
+		!client ? PrintToServer("%s %t", PREFIX, "Steam ID Added Target", target) : PrintToChat(client, "%s %t", PREFIX, "Steam ID Added Target", target);
 		
 	} else {
 		
-		!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Added") : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Added");
+		!client ? PrintToServer("%s %t", PREFIX, "Steam ID Added") : PrintToChat(client, "%s %t", PREFIX, "Steam ID Added");
 		
 	}
 	
@@ -335,9 +343,14 @@ public void SQL_AddCallback(Database db, DBResultSet results, const char[] error
 
 public Action CMD_Remove(int client, int args) {
 	
+	if (g_Database == null) {
+		ReplyToCommand(client, "%s Database failed to connect! Try reloading plugin.");
+		return Plugin_Handled;
+	}
+	
 	if (!args) {
 		
-		CReplyToCommand(client, "%s Usage: sm_calladmin_block_remove <user | STEAM_0:X:XXXXX>", PREFIX);
+		ReplyToCommand(client, "%s Usage: sm_calladmin_block_remove <user | STEAM_0:X:XXXXX>", PREFIX);
 		return Plugin_Handled;
 		
 	}
@@ -366,7 +379,7 @@ public Action CMD_Remove(int client, int args) {
 			
 			if (!GetClientAuthId(target, AuthId_Steam2, targetSteamID, sizeof(targetSteamID))) {
 				
-				CReplyToCommand(client, "%s %t", PREFIX, "Error Get Auth ID");
+				ReplyToCommand(client, "%s %t", PREFIX, "Error Get Auth ID");
 				return Plugin_Handled;
 				
 			}
@@ -432,11 +445,11 @@ public void SQL_RemoveCallback(Database db, DBResultSet results, const char[] er
 		
 		if (isTarget) {
 			
-			!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Removed Target", target) : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Removed Target", target);
+			!client ? PrintToServer("%s %t", PREFIX, "Steam ID Removed Target", target) : PrintToChat(client, "%s %t", PREFIX, "Steam ID Removed Target", target);
 			
 		} else {
 			
-			!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Removed") : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Removed");
+			!client ? PrintToServer("%s %t", PREFIX, "Steam ID Removed") : PrintToChat(client, "%s %t", PREFIX, "Steam ID Removed");
 			
 		}
 		
@@ -444,11 +457,11 @@ public void SQL_RemoveCallback(Database db, DBResultSet results, const char[] er
 		
 		if (isTarget) {
 			
-			!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Not In Blocklist Target", target) : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Not In Blocklist Target", target);
+			!client ? PrintToServer("%s %t", PREFIX, "Steam ID Not In Blocklist Target", target) : PrintToChat(client, "%s %t", PREFIX, "Steam ID Not In Blocklist Target", target);
 			
 		} else {
 			
-			!client ? CPrintToServer("%s %t", PREFIX, "Steam ID Not In Blocklist") : CPrintToChat(client, "%s %t", PREFIX, "Steam ID Not In Blocklist");
+			!client ? PrintToServer("%s %t", PREFIX, "Steam ID Not In Blocklist") : PrintToChat(client, "%s %t", PREFIX, "Steam ID Not In Blocklist");
 			
 		}
 		
@@ -462,9 +475,14 @@ public void SQL_RemoveCallback(Database db, DBResultSet results, const char[] er
 
 public Action CMD_List(int client, int args) {
 	
+	if (g_Database == null) {
+		ReplyToCommand(client, "%s Database failed to connect! Try reloading plugin.");
+		return Plugin_Handled;
+	}
+	
 	if (!client) {
 		
-		CReplyToCommand(client, "%s This command cannot be executed from the console.", PREFIX);
+		ReplyToCommand(client, "%s This command cannot be executed from the console.", PREFIX);
 		return Plugin_Handled;
 		
 	}
@@ -498,7 +516,7 @@ public void SQL_ListCallback(Database db, DBResultSet results, const char[] erro
 	
 	if (!results.FetchRow()) {
 		
-		CPrintToChat(client, "%s %t", PREFIX, "No Information");
+		PrintToChat(client, "%s %t", PREFIX, "No Information");
 		delete results;
 		return;
 		
@@ -721,7 +739,7 @@ public void SQL_DeleteMenuEntryCallback(Database db, DBResultSet results, const 
 	
 	int client = GetClientOfUserId(userid);
 	
-	CPrintToChat(client, "%s %t", PREFIX, "Steam ID Removed");
+	PrintToChat(client, "%s %t", PREFIX, "Steam ID Removed");
 	
 	delete results;
 	
@@ -733,7 +751,7 @@ public Action CallAdmin_OnDrawMenu(int client) {
 	
 	if ((GetTime() < g_iUserUnbanTime[client] || g_iUserUnbanTime[client] == 0) && g_iUserUnbanTime[client] != -1) {
 		
-		CPrintToChat(client, "%s %t", PREFIX, "Not Allowed");
+		PrintToChat(client, "%s %t", PREFIX, "Not Allowed");
 		return Plugin_Handled;
 		
 	}
